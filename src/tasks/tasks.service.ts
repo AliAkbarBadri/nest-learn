@@ -26,7 +26,12 @@ export class TasksService {
     this.tasks.push(task);
     return task;
   }
-  deleteTaskById(id: string) {
+  deleteTaskById(id: string): void {
     delete this.tasks[this.tasks.findIndex((task) => task.id == id)];
+  }
+  updateTask(id: string, feature: string, createTaskDto: CreateTaskDto): Task {
+    const task = this.getTaskById(id);
+    task[feature] = createTaskDto[feature];
+    return task;
   }
 }
