@@ -50,7 +50,11 @@ export class TasksService {
     return task;
   }
   deleteTaskById(id: string): void {
-    delete this.tasks[this.tasks.findIndex((task) => task.id == id)];
+    const task_id = this.tasks.findIndex((task) => task.id == id);
+    if (!task_id) {
+      throw new NotFoundException();
+    }
+    delete this.tasks[task_id];
   }
   updateTask(id: string, feature: string, createTaskDto: CreateTaskDto): Task {
     const task = this.getTaskById(id);
