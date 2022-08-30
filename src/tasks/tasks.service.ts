@@ -7,6 +7,7 @@ import { TasksRepository } from './tasks.repository';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Task } from './task.entity';
 import { Repository } from 'typeorm';
+import { query } from 'express';
 // import { Task } from './task.entity';
 
 @Injectable()
@@ -16,28 +17,20 @@ export class TasksService {
     private tasksRepository: Repository<Task>,
   ) {}
 
-  // getAllTasks(): Task[] {
-  //   return this.tasks;
-  // }
-  // getTasksFilter(filterDto: GetTasksFilterDto): Task[] {
-  //   const { status, search } = filterDto;
-  //   let tasks = this.getAllTasks();
-  //   if (status) {
-  //     tasks = tasks.filter((tasks) => tasks.status === status);
-  //   }
-  //   if (search) {
-  //     tasks = this.tasks.filter((task) => {
-  //       if (
-  //         task.title.toLowerCase().includes(search.toLowerCase()) ||
-  //         task.description.toLowerCase().includes(search.toLowerCase())
-  //       ) {
-  //         return true;
-  //       }
-  //       return false;
-  //     });
-  //   }
-  //   return tasks;
-  // }
+  async getTasks(filterDto: GetTasksFilterDto): Promise<Task[]> {
+    const { status, search } = filterDto;
+    const query = this.tasksRepository.createQueryBuilder('task');
+    if (status) {
+      query.andWhere('task.status = :status', { status });
+    }
+    if (search) {
+      query.andWhere(
+        'LOWER(task.title) LIKE LOWER(:search) OR LOWER(task.description) LIKE LOWER(:search)',
+        { search: `%${search}%` },
+      );
+    }
+    return await query.getMany();
+  }
   async getTaskById(id: string): Promise<Task> {
     const task = await this.tasksRepository.findOne({ where: { id: id } });
     if (!task) {
