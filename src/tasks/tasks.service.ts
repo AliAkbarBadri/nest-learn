@@ -62,13 +62,14 @@ export class TasksService {
       throw new NotFoundException(`Task with ID ${id} not found`);
     }
   }
-  // updateTask(id: string, updateTaskDto: UpdateTaskDto): Task {
-  //   const task = this.getTaskById(id);
-  //   for (const key in updateTaskDto) {
-  //     if (key in task) {
-  //       task[key] = updateTaskDto[key];
-  //     }
-  //   }
-  //   return task;
-  // }
+  async updateTask(id: string, updateTaskDto: UpdateTaskDto): Promise<Task> {
+    const task = await this.getTaskById(id);
+    for (const key in updateTaskDto) {
+      if (key in task) {
+        task[key] = updateTaskDto[key];
+      }
+    }
+    await this.tasksRepository.save(task);
+    return task;
+  }
 }
